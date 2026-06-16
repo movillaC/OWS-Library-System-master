@@ -18,13 +18,27 @@ const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "S
 let realtimeStarted = false;
 
 export async function initStore() {
-  const [books, borrowRecords, notifications] = await Promise.all([
-    fetchBooks(),
-    fetchLendings(),
-    fetchNotifications()
-  ]);
-  setState({ books, borrowRecords, notifications });
-  startRealtimeSubscriptions();
+  setState({ books: [], borrowRecords: [], notifications: [] });
+  return new Promise((resolve) => {
+    let booksReady = false;
+    let lendingsReady = false;
+
+    const checkReady = () => {
+      if (booksReady && lendingsReady) resolve();
+    };
+
+    subscribeToBooks((books) => {
+      setState({ books });
+      if (!booksReady) { booksReady = true; checkReady(); }
+    });
+
+    subscribeToLendings((borrowRecords) => {
+      setState({ borrowRecords });
+      if (!lendingsReady) { lendingsReady = true; checkReady(); }
+    });
+
+    subscribeToNotifications((notifications) => setState({ notifications }));
+  });
 }
 
 export function getState() {

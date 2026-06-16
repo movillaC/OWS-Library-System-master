@@ -9,12 +9,15 @@ import {
   onSnapshot,
   orderBy,
   query,
+  startAfter,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
 
-export async function fetchBooks() {
-  const snapshot = await getDocs(query(collection(db, "books"), orderBy("addedAt", "desc")));
-  return snapshot.docs.map((bookDoc) => ({ id: bookDoc.id, ...bookDoc.data() }));
+export async function fetchBooks(lastDoc = null, pageSize = 50) {
+  let q = query(collection(db, "books"), orderBy("addedAt", "desc"), limit(pageSize));
+  if (lastDoc) q = query(q, startAfter(lastDoc));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 export async function saveBook(bookData) {
@@ -35,9 +38,11 @@ export async function removeBook(bookId) {
   await deleteDoc(doc(db, "books", bookId));
 }
 
-export async function fetchLendings() {
-  const snapshot = await getDocs(query(collection(db, "lendings"), orderBy("borrowedAt", "desc")));
-  return snapshot.docs.map((recordDoc) => ({ id: recordDoc.id, ...recordDoc.data() }));
+export async function fetchLendings(lastDoc = null, pageSize = 100) {
+  let q = query(collection(db, "lendings"), orderBy("borrowedAt", "desc"), limit(pageSize));
+  if (lastDoc) q = query(q, startAfter(lastDoc));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 export async function saveLending(recordData) {
