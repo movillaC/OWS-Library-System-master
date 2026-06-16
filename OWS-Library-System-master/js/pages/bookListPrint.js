@@ -2,28 +2,86 @@ import { getState, initStore } from "../state/store.js";
 import { escapeHtml } from "../utils/html.js";
 
 const tableBody = document.getElementById("printBookTableBody");
+const generatedDateEl = document.getElementById("generatedDate");
+const reportTitleEl = document.getElementById("reportTitle");
+const filterSummaryEl = document.getElementById("filterSummary");
 
-document.getElementById("generatedDate").textContent = `Generated ${new Date().toLocaleString()}`;
+const params = new URLSearchParams(window.location.search);
+const filterSearch      = params.get("search")      || "";
+const filterCategory    = params.get("category")    || "";
+const filterLocation    = params.get("location")    || "";
+const filterArrangement = params.get("arrangement") || "date";
+
+generatedDateEl.textContent = Generated ${new Date().toLocaleString()};
 
 document.getElementById("printPage").addEventListener("click", () => {
   window.print();
 });
 
 async function init() {
-  tableBody.innerHTML = `<tr><td colspan="10" class="empty-table">Loading books...</td></tr>`;
+  tableBody.innerHTML = <tr><td colspan="10" class="empty-table">Loading books...</td></tr>;
   await initStore();
-  const books = getState().books;
-  if (books.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="10" class="empty-table">No books found.</td></tr>`;
+
+  const filtered = getFilteredBooks(getState().books);
+
+  // Build report title & filter summary
+  if (filterSearch || filterCategory || filterLocation || filterArrangement !== "date") {
+    const parts = [];
+    if (filterSearch)   parts.push(Search: "${filterSearch}");
+    if (filterCategory) parts.push(Category: ${filterCategory});
+    if (filterLocation) parts.push(Location: ${filterLocation});
+
+    const arrangementLabels = {
+      date:   "Date Added",
+      newest: "Newest to Oldest",
+      oldest: "Oldest to Newest",
+      alpha:  "Alphabetical"
+    };
+    parts.push(Sorted by: ${arrangementLabels[filterArrangement] || filterArrangement});
+
+    reportTitleEl.textContent = "Filtered Book List Report";
+    filterSummaryEl.textContent = parts.join(" · ");
+    filterSummaryEl.hidden = false;
+  }
+
+  if (filtered.length === 0) {
+    tableBody.innerHTML = <tr><td colspan="10" class="empty-table">No books match the selected filters.</td></tr>;
   } else {
-    tableBody.innerHTML = books
-      .sort((a, b) => getLatestRecordDate(b) - getLatestRecordDate(a))
-      .map(renderPrintRow)
-      .join("");
+    tableBody.innerHTML = filtered.map(renderPrintRow).join("");
   }
 }
 
 init();
+
+function getFilteredBooks(books) {
+  const searchLower = filterSearch.toLowerCase();
+
+  const filtered = books.filter((book) => {
+    const searchTarget = ${book.title || ""} ${book.callNumber || ""}.toLowerCase();
+    const matchesSearch   = !searchLower   || searchTarget.includes(searchLower);
+    const matchesCategory = !filterCategory || book.category === filterCategory;
+    const matchesLocation = !filterLocation || book.location === filterLocation;
+    return matchesSearch && matchesCategory && matchesLocation;
+  });
+
+  return sortBooks(filtered);
+}
+
+function sortBooks(books) {
+  const sorted = [...books];
+
+  if (filterArrangement === "alpha") {
+    return sorted.sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
+  }
+  if (filterArrangement === "oldest") {
+    return sorted.sort((a, b) => getPublicationYear(a) - getPublicationYear(b));
+  }
+  if (filterArrangement === "newest") {
+    return sorted.sort((a, b) => getPublicationYear(b) - getPublicationYear(a));
+  }
+  // default: "date" — sort by latest record date
+  return sorted.sort((a, b) => getLatestRecordDate(b) - getLatestRecordDate(a));
+}
 
 function renderPrintRow(book) {
   return `
@@ -47,6 +105,12 @@ function display(value) {
     return "-";
   }
   return escapeHtml(value);
+}
+
+function getPublicationYear(book) {
+  const rawYear = String(book.publicationDate || "").slice(0, 4);
+  const year = Number(rawYear);
+  return Number.isFinite(year) ? year : 0;
 }
 
 function getLatestRecordDate(book) {

@@ -39,20 +39,20 @@ renderAppLayout({
         <span class="sr-only">Filter by category</span>
         <select id="categoryFilter">
           <option value="">All Categories</option>
-          ${categoryOptions.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join("")}
+          ${categoryOptions.map((category) => <option value="${escapeHtml(category)}">${escapeHtml(category)}</option>).join("")}
         </select>
       </label>
       <label class="filter-box">
         <span class="sr-only">Filter by location</span>
         <select id="locationFilter">
           <option value="">All Locations</option>
-          ${locationOptions.map((location) => `<option value="${escapeHtml(location)}">${escapeHtml(location)}</option>`).join("")}
+          ${locationOptions.map((location) => <option value="${escapeHtml(location)}">${escapeHtml(location)}</option>).join("")}
         </select>
       </label>
       <label class="filter-box">
         <span class="sr-only">Arrange books</span>
         <select id="arrangementSelect">
-          ${arrangementOptions.map((option) => `<option value="${option.value}">${option.label}</option>`).join("")}
+          ${arrangementOptions.map((option) => <option value="${option.value}">${option.label}</option>).join("")}
         </select>
       </label>
     </section>
@@ -121,17 +121,33 @@ tableBody.addEventListener("click", (event) => {
 subscribe(renderBookTable);
 renderBookTable();
 
+// Intercept the print button to pass current filter/sort state as URL params
+document.addEventListener("click", (event) => {
+  const printLink = event.target.closest('a[href*="book-list-print.html"]');
+  if (!printLink) return;
+  event.preventDefault();
+
+  const params = new URLSearchParams();
+  if (pageState.search)      params.set("search", pageState.search);
+  if (pageState.category)    params.set("category", pageState.category);
+  if (pageState.location)    params.set("location", pageState.location);
+  if (pageState.arrangement) params.set("arrangement", pageState.arrangement);
+
+  const base = printLink.getAttribute("href");
+  window.open(${base}?${params.toString()}, "_blank");
+});
+
 function renderBookTable() {
   const books = getFilteredBooks();
 
   tableBody.innerHTML = books.length
     ? books.map(renderBookRow).join("")
-    : `<tr><td colspan="11" class="empty-table">No books found.</td></tr>`;
+    : <tr><td colspan="11" class="empty-table">No books found.</td></tr>;
 }
 
 function getFilteredBooks() {
   const books = [...getState().books].filter((book) => {
-    const searchTarget = `${book.title || ""} ${book.callNumber || ""}`.toLowerCase();
+    const searchTarget = ${book.title || ""} ${book.callNumber || ""}.toLowerCase();
     const matchesSearch = !pageState.search || searchTarget.includes(pageState.search);
     const matchesCategory = !pageState.category || book.category === pageState.category;
     const matchesLocation = !pageState.location || book.location === pageState.location;
@@ -268,7 +284,7 @@ function renderEditField(field, book) {
 }
 
 function renderChoice(name, value, checked, className) {
-  const id = `edit-${name}-${value.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  const id = edit-${name}-${value.toLowerCase().replace(/[^a-z0-9]+/g, "-")};
   return `
     <label class="${className}">
       <input type="radio" name="${name}" id="${id}" value="${escapeHtml(value)}" ${checked ? "checked" : ""}>
