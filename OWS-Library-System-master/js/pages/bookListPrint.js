@@ -2,84 +2,63 @@ import { getState, initStore } from "../state/store.js";
 import { escapeHtml } from "../utils/html.js";
 
 const tableBody = document.getElementById("printBookTableBody");
-const generatedDateEl = document.getElementById("generatedDate");
-const reportTitleEl = document.getElementById("reportTitle");
-const filterSummaryEl = document.getElementById("filterSummary");
 
-const params = new URLSearchParams(window.location.search);
-const filterSearch      = params.get("search")      || "";
-const filterCategory    = params.get("category")    || "";
-const filterLocation    = params.get("location")    || "";
-const filterArrangement = params.get("arrangement") || "date";
-
-generatedDateEl.textContent = Generated ${new Date().toLocaleString()};
+document.getElementById("generatedDate").textContent = `Generated ${new Date().toLocaleString()}`;
 
 document.getElementById("printPage").addEventListener("click", () => {
   window.print();
 });
 
+// Read filters/sort from URL query params passed by bookList.js
+const params = new URLSearchParams(window.location.search);
+const printState = {
+  search: params.get("search") || "",
+  category: params.get("category") || "",
+  location: params.get("location") || "",
+  arrangement: params.get("arrangement") || "date",
+};
+
 async function init() {
-  tableBody.innerHTML = <tr><td colspan="10" class="empty-table">Loading books...</td></tr>;
+  tableBody.innerHTML = `<tr><td colspan="10" class="empty-table">Loading books...</td></tr>`;
   await initStore();
 
-  const filtered = getFilteredBooks(getState().books);
+  const books = getFilteredBooks();
 
-  // Build report title & filter summary
-  if (filterSearch || filterCategory || filterLocation || filterArrangement !== "date") {
-    const parts = [];
-    if (filterSearch)   parts.push(Search: "${filterSearch}");
-    if (filterCategory) parts.push(Category: ${filterCategory});
-    if (filterLocation) parts.push(Location: ${filterLocation});
-
-    const arrangementLabels = {
-      date:   "Date Added",
-      newest: "Newest to Oldest",
-      oldest: "Oldest to Newest",
-      alpha:  "Alphabetical"
-    };
-    parts.push(Sorted by: ${arrangementLabels[filterArrangement] || filterArrangement});
-
-    reportTitleEl.textContent = "Filtered Book List Report";
-    filterSummaryEl.textContent = parts.join(" · ");
-    filterSummaryEl.hidden = false;
-  }
-
-  if (filtered.length === 0) {
-    tableBody.innerHTML = <tr><td colspan="10" class="empty-table">No books match the selected filters.</td></tr>;
+  if (books.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="10" class="empty-table">No books found.</td></tr>`;
   } else {
-    tableBody.innerHTML = filtered.map(renderPrintRow).join("");
+    tableBody.innerHTML = books.map(renderPrintRow).join("");
   }
 }
 
 init();
 
-function getFilteredBooks(books) {
-  const searchLower = filterSearch.toLowerCase();
-
-  const filtered = books.filter((book) => {
-    const searchTarget = ${book.title || ""} ${book.callNumber || ""}.toLowerCase();
-    const matchesSearch   = !searchLower   || searchTarget.includes(searchLower);
-    const matchesCategory = !filterCategory || book.category === filterCategory;
-    const matchesLocation = !filterLocation || book.location === filterLocation;
+function getFilteredBooks() {
+  const books = [...getState().books].filter((book) => {
+    const searchTarget = `${book.title || ""} ${book.callNumber || ""}`.toLowerCase();
+    const matchesSearch = !printState.search || searchTarget.includes(printState.search);
+    const matchesCategory = !printState.category || book.category === printState.category;
+    const matchesLocation = !printState.location || book.location === printState.location;
     return matchesSearch && matchesCategory && matchesLocation;
   });
 
-  return sortBooks(filtered);
+  return sortBooks(books);
 }
 
 function sortBooks(books) {
   const sorted = [...books];
 
-  if (filterArrangement === "alpha") {
+  if (printState.arrangement === "alpha") {
     return sorted.sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
   }
-  if (filterArrangement === "oldest") {
+  if (printState.arrangement === "oldest") {
     return sorted.sort((a, b) => getPublicationYear(a) - getPublicationYear(b));
   }
-  if (filterArrangement === "newest") {
+  if (printState.arrangement === "newest") {
     return sorted.sort((a, b) => getPublicationYear(b) - getPublicationYear(a));
   }
-  // default: "date" — sort by latest record date
+
+  // Default: "date" — sort by latest record date
   return sorted.sort((a, b) => getLatestRecordDate(b) - getLatestRecordDate(a));
 }
 

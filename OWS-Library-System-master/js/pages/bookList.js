@@ -82,6 +82,17 @@ renderAppLayout({
   `
 });
 
+document.querySelector('a[href="book-list-print.html"]').addEventListener("click", (event) => {
+  event.preventDefault();
+  const params = new URLSearchParams({
+    search: pageState.search,
+    category: pageState.category, 
+    location: pageState.location,
+    arrangement: pageState.arrangement,
+  });
+  window.location.href = `../pages/book-list-print.html?${params.toString()}`;
+});
+
 const tableBody = document.getElementById("bookTableBody");
 
 document.getElementById("bookSearch").addEventListener("input", debounce((event) => {
@@ -120,22 +131,6 @@ tableBody.addEventListener("click", (event) => {
 
 subscribe(renderBookTable);
 renderBookTable();
-
-// Intercept the print button to pass current filter/sort state as URL params
-document.addEventListener("click", (event) => {
-  const printLink = event.target.closest('a[href*="book-list-print.html"]');
-  if (!printLink) return;
-  event.preventDefault();
-
-  const params = new URLSearchParams();
-  if (pageState.search)      params.set("search", pageState.search);
-  if (pageState.category)    params.set("category", pageState.category);
-  if (pageState.location)    params.set("location", pageState.location);
-  if (pageState.arrangement) params.set("arrangement", pageState.arrangement);
-
-  const base = printLink.getAttribute("href");
-  window.open(`${base}?${params.toString()}`, "_blank");
-});
 
 function renderBookTable() {
   const books = getFilteredBooks();
