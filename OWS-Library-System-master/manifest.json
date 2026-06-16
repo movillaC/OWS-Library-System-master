@@ -1,0 +1,17 @@
+{
+  "name": "Olongapo Wesley School Library System",
+  "short_name": "OWS Library",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0055ff",
+  "description": "Frontend-first school library management system prepared for future PWA support.",
+  "icons": [
+    {
+      "src": "assets/logo_192 (2).png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

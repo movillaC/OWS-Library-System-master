@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0055ff">
+  <title>Dashboard Print Preview | OWS Library System</title>
+  <link rel="stylesheet" href="../css/main.css">
+</head>
+<body class="print-page">
+  <main class="print-shell">
+    <header class="print-toolbar">
+      <div>
+        <h1>Dashboard Print Preview</h1>
+        <p>Olongapo Wesley School, Inc. Library System</p>
+      </div>
+      <div class="print-actions">
+        <button class="primary-button" type="button" id="printPage">Print</button>
+        <a class="secondary-button print-link" href="dashboard.html">Back</a>
+      </div>
+    </header>
+
+    <section id="printDocument" class="print-document">
+      <header class="print-document-header">
+        <h2>Library Dashboard Report</h2>
+        <p id="generatedDate"></p>
+      </header>
+      <section class="stats-grid print-stats">
+        <article class="stat-card">
+          <p class="stat-label">Total Books</p>
+          <p id="printTotalBooks" class="stat-value">0</p>
+        </article>
+      </section>
+      <section class="dashboard-grid">
+        <article class="chart-card">
+          <h3>Books By Location</h3>
+          <div class="chart-frame"><canvas id="locationChart"></canvas></div>
+        </article>
+        <article class="chart-card">
+          <h3>Books By Category</h3>
+          <div class="chart-frame"><canvas id="categoryChart"></canvas></div>
+        </article>
+        <article class="chart-card is-wide">
+          <h3 id="printTimelineHeading">Newly Added Books Over Time</h3>
+          <div class="chart-frame"><canvas id="timelineChart"></canvas></div>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="../js/pages/dashboardPrint.js"></script>
+</body>
+</html>

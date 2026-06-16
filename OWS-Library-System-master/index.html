@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OWS Library System | Admin Login</title>
+  <link rel="icon" type="image/png" href="assets/logo_192 (2).png">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+  <main aria-labelledby="login-title">
+    <section class="login-brand">
+      <div class="brand-seal-wrap">
+        <img src="assets/logo_192 (2).png" alt="Olongapo Wesley School Seal">
+      </div>
+      <h1 id="login-title">Olongapo Wesley School, Inc.</h1>
+      <p>Library System</p>
+    </section>
+
+    <section class="login-card" aria-label="Admin login form">
+      <form id="loginForm" class="form-stack">
+        <div class="field-group">
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" autocomplete="username" placeholder="Enter username" required>
+        </div>
+
+        <div class="field-group">
+          <label for="password">Password</label>
+          <div class="password-field">
+            <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter password" required>
+            <button class="icon-button password-toggle" type="button" aria-label="Show password" id="togglePw">
+              <span aria-hidden="true">&#128065;</span>
+            </button>
+          </div>
+          <div class="forgot-row">
+            <button type="button" class="forgot-link" id="forgotBtn">Forgot Password?</button>
+          </div>
+        </div>
+
+        <button class="primary-button" type="submit">Login</button>
+      </form>
+
+      <div class="login-footer">
+        <blockquote class="login-quote">
+          <p>"Truth, Wisdom and Service"</p>
+          <cite>Think Wisely. Choose Wesley.</cite>
+        </blockquote>
+      </div>
+    </section>
+
+    <p class="copyright">&copy; 2026 Olongapo Wesley School, Inc.</p>
+  </main>
+
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

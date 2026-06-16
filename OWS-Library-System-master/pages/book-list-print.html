@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0055ff">
+  <title>Book List Print Preview | OWS Library System</title>
+  <link rel="stylesheet" href="../css/main.css">
+</head>
+<body class="print-page">
+  <main class="print-shell">
+    <header class="print-toolbar">
+      <div>
+        <h1>Book List Print Preview</h1>
+        <p>Olongapo Wesley School, Inc. Library System</p>
+      </div>
+      <div class="print-actions">
+        <button class="primary-button" type="button" id="printPage">Print</button>
+        <a class="secondary-button print-link" href="book-list.html">Back</a>
+      </div>
+    </header>
+
+    <section id="printDocument" class="print-document">
+      <header class="print-document-header">
+        <h2>Complete Book List Report</h2>
+        <p id="generatedDate"></p>
+      </header>
+      <div class="print-table-wrap">
+        <table class="data-table print-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Author</th>
+              <th>Publisher</th>
+              <th>Year</th>
+              <th>Call Number</th>
+              <th>ISBN</th>
+              <th>Location</th>
+              <th>Category</th>
+              <th>On Shelf</th>
+              <th>Date Added / Date Edited</th>
+            </tr>
+          </thead>
+          <tbody id="printBookTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="../js/pages/bookListPrint.js"></script>
+</body>
+</html>
